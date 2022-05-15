@@ -7,6 +7,23 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 
+def JsonToDataframe(json):
+    return pd.DataFrame.from_dict(pd.json_normalize(json), orient='columns')
+
+def UploadToS3(df, name):
+    csv = df.to_csv()
+
+    with open(name, "wt") as f:
+        f.write(csv)
+    
+    s3 = boto3.client("s3")
+    with open(name, "rb") as f:
+        s3.upload_fileobj(f, "saliy-s3-labs", name)
+
+def UploadFileToS3(file_name):
+    with open(file_name, "rb") as f:
+        s3.upload_fileobj(f, "saliy-s3-labs", file_name)
+
 # load json of currency
 date = 20210101
 
@@ -54,20 +71,3 @@ plt.show()
 
 UploadFileToS3('uah2usd.png')
 UploadFileToS3('uah2eur.png')
-
-def JsonToDataframe(json):
-    return pd.DataFrame.from_dict(pd.json_normalize(json), orient='columns')
-
-def UploadToS3(df, name):
-    csv = df.to_csv()
-
-    with open(name, "wt") as f:
-        f.write(csv)
-    
-    s3 = boto3.client("s3")
-    with open(name, "rb") as f:
-        s3.upload_fileobj(f, "saliy-s3-labs", name)
-
-def UploadFileToS3(file_name):
-    with open(file_name, "rb") as f:
-        s3.upload_fileobj(f, "saliy-s3-labs", file_name)
